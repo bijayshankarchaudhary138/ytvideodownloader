@@ -1,0 +1,28 @@
+{
+  "name": "YouTube Video Downloader — ad-free, 4K, MP3",
+  "short_name": "YT Download",
+  "description": "Download YouTube videos in 4K with audio merged, MP3 320 kbps, playlists as ZIP, subtitles and thumbnails. No ads, no popups, no sign-up.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b0f19",
+  "theme_color": "#ff0033",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["utilities", "multimedia", "productivity"],
+  "icons": [
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
+    { "src": "/icons/screenshot-wide.png", "sizes": "1280x720", "type": "image/png", "form_factor": "wide" }
+  ],
+  "shortcuts": [
+    { "name": "Download MP3", "url": "/?preset=mp3-320", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "API docs", "url": "/api-docs" }
+  ]
+}
