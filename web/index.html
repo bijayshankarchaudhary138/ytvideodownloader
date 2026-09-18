@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>YouTube Video Downloader — 4K, MP3 & Playlists (No Ads)</title>
+<meta name="description" content="Free YouTube video downloader: real 4K with audio merged, MP3 320 kbps, playlists as ZIP, subtitles and thumbnails, live progress. No ads, no popups, no sign-up." />
+<meta name="theme-color" content="#ff0033" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#0b0f19" media="(prefers-color-scheme: dark)" />
+<meta name="color-scheme" content="light dark" />
+<meta name="robots" content="index, follow, max-image-preview:large" />
+<meta name="author" content="YouTube Downloader" />
+<link rel="canonical" href="https://example.com/" />
+<link rel="alternate" hreflang="en" href="https://example.com/" />
+<link rel="alternate" hreflang="hi" href="https://example.com/?lang=hi" />
+<link rel="alternate" hreflang="x-default" href="https://example.com/" />
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="YouTube Video Downloader" />
+<meta property="og:title" content="Download YouTube videos in 4K — no ads, no popups" />
+<meta property="og:description" content="Real 4K with audio merged, MP3 320 kbps, playlists as ZIP, subtitles and thumbnails. Free, ad-free and installable as an app." />
+<meta property="og:image" content="https://example.com/icons/screenshot-wide.png" />
+<meta property="og:image:width" content="1280" />
+<meta property="og:image:height" content="720" />
+<meta property="og:url" content="https://example.com/" />
+<meta property="og:locale" content="en" />
+<meta property="og:locale:alternate" content="hi" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Download YouTube videos in 4K — no ads, no popups" />
+<meta name="twitter:description" content="Real 4K with audio merged, MP3 320 kbps, playlists, subtitles. Free and ad-free." />
+<meta name="twitter:image" content="https://example.com/icons/screenshot-wide.png" />
+
+<link rel="manifest" href="/manifest.webmanifest" />
+<link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/icons/icon-192.png" />
+<link rel="mask-icon" href="/icons/icon.svg" color="#ff0033" />
+<link rel="preload" as="style" href="/src/styles/global.css" />
+<link rel="preconnect" href="https://i.ytimg.com" crossorigin />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "YouTube Video Downloader",
+  "url": "https://example.com/",
+  "applicationCategory": "MultimediaApplication",
+  "operatingSystem": "Any (web browser, Android, iOS, Windows, macOS, Linux)",
+  "browserRequirements": "Requires JavaScript",
+  "description": "Ad-free YouTube downloader with real 4K video+audio merging, MP3 320 kbps, playlist ZIP downloads, subtitles and live progress.",
+  "inLanguage": ["en", "hi"],
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "4K/8K downloads with merged audio",
+    "MP3 320 kbps audio extraction",
+    "Playlist downloads as a single ZIP",
+    "Subtitles (.srt/.vtt) and thumbnails",
+    "Live progress with speed and ETA",
+    "Free REST API"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to download a YouTube video",
+  "totalTime": "PT30S",
+  "estimatedCost": { "@type": "MonetaryAmount", "currency": "USD", "value": "0" },
+  "step": [
+    { "@type": "HowToStep", "position": 1, "name": "Copy the link", "text": "Copy the YouTube video link from your browser or the app share menu." },
+    { "@type": "HowToStep", "position": 2, "name": "Paste the link", "text": "Paste the link into the download box and press Analyse." },
+    { "@type": "HowToStep", "position": 3, "name": "Choose the quality", "text": "Pick 4K, 1080p, 720p, MP3 or subtitles." },
+    { "@type": "HowToStep", "position": 4, "name": "Download", "text": "Press download and save the file to your device." }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Is this YouTube downloader free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. It is completely free, with no account, no payment and no premium tier. The project can also be self-hosted." } },
+    { "@type": "Question", "name": "Why do other sites only offer 360p or 720p?", "acceptedAnswer": { "@type": "Answer", "text": "YouTube serves 1080p and above as separate video-only and audio-only streams. Merging them requires ffmpeg on the server, so downloaders without it silently fall back to the 360p combined stream. This site merges the streams with ffmpeg." } },
+    { "@type": "Question", "name": "Can I download a whole YouTube playlist?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Paste a playlist link, choose a quality and download every video as a single ZIP archive." } },
+    { "@type": "Question", "name": "Can I convert YouTube to MP3?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, up to 320 kbps MP3. M4A, OPUS, WAV and FLAC are also available." } },
+    { "@type": "Question", "name": "Are my downloads private?", "acceptedAnswer": { "@type": "Answer", "text": "There are no ads, trackers or analytics scripts. Downloaded files are stored temporarily and deleted automatically when they expire." } },
+    { "@type": "Question", "name": "Is it legal to download YouTube videos?", "acceptedAnswer": { "@type": "Answer", "text": "Download only content you own or that is licensed for reuse, and respect YouTube's terms of service and local copyright law." } }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://example.com/" },
+    { "@type": "ListItem", "position": 2, "name": "How to", "item": "https://example.com/how-to" },
+    { "@type": "ListItem", "position": 3, "name": "FAQ", "item": "https://example.com/faq" }
+  ]
+}
+</script>
+<script>
+  // Apply the saved theme before paint (prevents a flash of the wrong colours).
+  (function () {
+    try {
+      var stored = localStorage.getItem('ytvd:theme');
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = stored || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    } catch (e) { /* ignore */ }
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div id="root"></div>
+
+<!--
+  Crawlable fallback content for crawlers/scrapers that do not execute
+  JavaScript. The app removes this block as soon as React mounts, so users
+  never see duplicated content.
+-->
+<div id="seo-shell">
+  <header>
+    <nav aria-label="Main">
+      <a href="/">Home</a>
+      <a href="/how-to">How to</a>
+      <a href="/faq">FAQ</a>
+      <a href="/api-docs">API</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+  </header>
+  <main>
+    <h1>YouTube Video Downloader — download in 4K, MP3 and playlists</h1>
+    <p>
+      Paste a YouTube link and download the real file: 4K/1080p video with the audio track merged in,
+      MP3 up to 320 kbps, entire playlists as a single ZIP, subtitles as .srt, every thumbnail size,
+      and clip trimming. Free, with no ads, no popups, no fake download buttons and no sign-up.
+    </p>
+    <h2>Why this downloader is different</h2>
+    <ul>
+      <li><strong>Real 4K with audio.</strong> YouTube serves high resolutions as separate video and audio streams; we merge them with ffmpeg so you get one playable file.</li>
+      <li><strong>Live progress.</strong> Real percentage, download speed and time remaining — never a guessing spinner.</li>
+      <li><strong>No ads, no popups, no trackers.</strong> Files are deleted automatically after they expire.</li>
+      <li><strong>Playlists and batches.</strong> Download a whole playlist as one ZIP archive.</li>
+      <li><strong>Subtitles and thumbnails.</strong> Grab captions in any language and thumbnails in every size.</li>
+      <li><strong>Free API.</strong> The same engine is available as a documented REST API.</li>
+    </ul>
+    <h2>How to download a YouTube video</h2>
+    <ol>
+      <li>Copy the video link from YouTube.</li>
+      <li>Paste it into the download box and press Analyse.</li>
+      <li>Choose the quality, format or subtitles you want.</li>
+      <li>Press Download and save the file.</li>
+    </ol>
+    <h2>Frequently asked questions</h2>
+    <h3>Is it really free?</h3>
+    <p>Yes — no account, no payment, no premium tier, and the code can be self-hosted.</p>
+    <h3>Why do other sites only give me 360p or 720p?</h3>
+    <p>Because YouTube serves 1080p and above as separate video and audio streams that must be merged with ffmpeg on the server. Sites without ffmpeg silently downgrade you to the 360p combined stream.</p>
+    <h3>Can I download playlists?</h3>
+    <p>Yes, and you get them as one ZIP file.</p>
+    <h3>Can I get MP3 audio?</h3>
+    <p>Yes, up to 320 kbps, plus M4A, OPUS, WAV and FLAC.</p>
+    <h3>Do you keep my files?</h3>
+    <p>No. Files are stored temporarily and deleted automatically when they expire.</p>
+  </main>
+  <footer>
+    <p>Not affiliated with YouTube or Google. Download only content you are allowed to download.</p>
+    <p><a href="/api-docs">Free API documentation</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></p>
+  </footer>
+</div>
+
+<noscript>
+  <p>This downloader needs JavaScript for downloads. You can still use the API directly: see <a href="/api-docs">API documentation</a>.</p>
+</noscript>
+
+<script type="module" src="/src/main.jsx"></script>
+</body>
+</html>

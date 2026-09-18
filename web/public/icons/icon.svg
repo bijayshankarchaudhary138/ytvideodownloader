@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="YouTube Video Downloader">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff2d55"/>
+      <stop offset="1" stop-color="#7c1fff"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect x="96" y="132" width="320" height="200" rx="44" fill="#ffffff" opacity="0.96"/>
+  <path d="M226 186l104 46-104 46z" fill="#ff2d55"/>
+  <path d="M256 356v74" stroke="#ffffff" stroke-width="34" stroke-linecap="round"/>
+  <path d="M186 430l70-70 70 70" fill="none" stroke="#ffffff" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

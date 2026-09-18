@@ -1,0 +1,34 @@
+# Single-service compose file: persistent download cache + restart policy.
+#
+#   docker compose up -d --build
+#   open http://localhost:8080
+services:
+  ytvideodownloader:
+    build: .
+    image: ytvideodownloader:latest
+    container_name: ytvideodownloader
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      NODE_ENV: production
+      DEMO_MODE: "off"
+      FILE_TTL_HOURS: "6"
+      CONCURRENCY: "2"
+      MAX_QUEUE_LENGTH: "50"
+      RATE_LIMIT_MAX: "60"
+      # PROXY_URL: "http://user:pass@proxy:3128"
+      # COOKIES_FILE: "/app/data/cookies.txt"
+    volumes:
+      - ytvd-data:/app/data
+      - ytvd-vendor:/app/vendor
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  ytvd-data:
+  ytvd-vendor:

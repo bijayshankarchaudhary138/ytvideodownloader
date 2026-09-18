@@ -1,0 +1,40 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# downloaded engines (yt-dlp + ffmpeg) — recreated with `npm run setup`
+vendor/
+!vendor/.gitkeep
+
+# build output
+web/dist/
+dist/
+
+# runtime data: cached metadata, job outputs, generated demo media
+data/
+tmp/
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# test coverage / reports
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+
+# local configuration & secrets
+.env
+.env.*
+!.env.example
+cookies.txt
+*.pem
+
+# editors / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*~

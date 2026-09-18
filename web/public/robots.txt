@@ -1,0 +1,9 @@
+# Free, ad-free YouTube downloader — everything is meant to be crawled & indexed.
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /api/files/
+Disallow: /api/jobs/
+
+# Crawl-friendly hints
+Sitemap: https://example.com/sitemap.xml
