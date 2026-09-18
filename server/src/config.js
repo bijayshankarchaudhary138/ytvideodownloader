@@ -34,6 +34,13 @@ function pickTtl(overrides, env) {
   return 6 * 3600_000;
 }
 
+/** Verification tokens are pasted from a dashboard: keep them short and safe. */
+function token(value) {
+  if (!value) return null;
+  const clean = String(value).trim();
+  return /^[A-Za-z0-9_\-.=]{8,120}$/.test(clean) ? clean : null;
+}
+
 /** Public origin, or null to derive it from each request. */
 function normalizeSiteUrl(value) {
   if (!value) return null;
@@ -64,6 +71,12 @@ export function loadConfig(overrides = {}) {
     // Public origin used in canonical/hreflang/OG/sitemap output. When unset the
     // request's own origin is used, so a fresh self-hosted copy is never wrong.
     siteUrl: normalizeSiteUrl(overrides.siteUrl ?? env.SITE_URL ?? null),
+    // Search-engine ownership proof, injected as <meta> into every served page:
+    //   GOOGLE_SITE_VERIFICATION / BING_SITE_VERIFICATION (Bing also accepts msvalidate.01)
+    siteVerification: {
+      google: token(overrides.googleSiteVerification ?? env.GOOGLE_SITE_VERIFICATION),
+      bing: token(overrides.bingSiteVerification ?? env.BING_SITE_VERIFICATION ?? env.MSV_VERIFICATION),
+    },
 
     // storage
     dataDir,

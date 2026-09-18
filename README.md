@@ -117,6 +117,7 @@ Production notes: run behind a reverse proxy with TLS, set `TRUST_PROXY=1`, and 
 Step-by-step guides:
 : **[`docs/GO-LIVE-FREE.md`](docs/GO-LIVE-FREE.md) — free hosting (no paid server needed)**, in simple Hindi + English.
 : [`docs/DEPLOY.md`](docs/DEPLOY.md) — full testing + production deployment reference.
+: [`docs/SEO-RANKING.md`](docs/SEO-RANKING.md) — how to get indexed and rank for "yt video downloader" (honest plan: keywords, content, backlinks, Search Console).
 
 **Free live in 5 minutes** (your own PC + a free Cloudflare tunnel — also the most
 reliable option for real downloads, because a home IP is not blocked by YouTube):

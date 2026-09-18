@@ -505,6 +505,18 @@ export function createApp({ config }) {
     return `http://localhost:${config.port}`;
   }
 
+  /** Verification <meta> tags for search engines, when configured. */
+  function verificationTags() {
+    const tags = [];
+    if (config.siteVerification?.google) {
+      tags.push(`<meta name="google-site-verification" content="${config.siteVerification.google}" />`);
+    }
+    if (config.siteVerification?.bing) {
+      tags.push(`<meta name="msvalidate.01" content="${config.siteVerification.bing}" />`);
+    }
+    return tags.join('\n    ');
+  }
+
   function readRewritten(filePath, req) {
     if (!fs.existsSync(filePath)) return null;
     const { mtimeMs } = fs.statSync(filePath);
@@ -513,7 +525,12 @@ export function createApp({ config }) {
       entry = { mtimeMs, text: fs.readFileSync(filePath, 'utf8') };
       shellCache.set(filePath, entry);
     }
-    return entry.text.split(SITE_PLACEHOLDER).join(resolveSiteUrl(req));
+    let text = entry.text.split(SITE_PLACEHOLDER).join(resolveSiteUrl(req));
+    if (filePath.endsWith('.html')) {
+      const tags = verificationTags();
+      if (tags) text = text.replace('</head>', `  ${tags}\n</head>`);
+    }
+    return text;
   }
 
   /** Serve an HTML/text file with the deployment origin substituted in. */

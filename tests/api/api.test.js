@@ -267,6 +267,81 @@ describe('static + SEO + docs routes', () => {
   });
 });
 
+describe('search-engine readiness (ranking)', () => {
+  it('serves crawlable, keyword-rich content without JavaScript', async () => {
+    const res = await fetch(`${ctx.baseUrl}/`);
+    const html = await res.text();
+    // A crawler that does not execute JS must still see a complete page.
+    expect(html).toMatch(/<h1[^>]*>[^<]*YouTube/i);
+    expect((html.match(/<h2/g) ?? []).length).toBeGreaterThanOrEqual(4);
+    expect((html.match(/<h3/g) ?? []).length).toBeGreaterThanOrEqual(4);
+    expect(html.toLowerCase()).toContain('youtube video downloader');
+    expect(html.toLowerCase()).toContain('mp3');
+    expect(html).toMatch(/1080p/);
+    expect(html).toMatch(/हिन्दी/);          // Hindi block for hreflang=hi searchers
+    expect(html).toContain('<table');
+    expect(html).toMatch(/<a href="\/faq"/);
+    expect(html).toMatch(/<a href="\/api-docs"/);
+    expect(html).toContain('Creative Commons'); // honest usage guidance
+    expect(html.length).toBeGreaterThan(8000); // thin pages do not rank
+  }, 60_000);
+
+  it('keeps the structured data in sync with the visible FAQ', async () => {
+    const html = await (await fetch(`${ctx.baseUrl}/`)).text();
+    const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
+    const faq = blocks.find((b) => b['@type'] === 'FAQPage');
+    expect(faq).toBeTruthy();
+    expect(faq.mainEntity.length).toBeGreaterThanOrEqual(5);
+    for (const item of faq.mainEntity) {
+      const question = item.name.replace(/&/g, '&amp;').replace(/’/g, '’');
+      expect(html, `FAQ question not visible on the page: ${item.name}`).toContain(question);
+    }
+    const app = blocks.find((b) => b['@type'] === 'WebApplication');
+    expect(app.offers.price).toBe('0');
+    expect(app.applicationCategory).toBeTruthy();
+  }, 60_000);
+
+  it('injects Search Console / Bing verification meta tags when configured', async () => {
+    const verified = await startTestServer({
+      googleSiteVerification: 'abcDEF1234567890abc',
+      bingSiteVerification: 'BINGTOKEN1234567890',
+    });
+    try {
+      const html = await (await fetch(`${verified.baseUrl}/`)).text();
+      expect(html).toContain('<meta name="google-site-verification" content="abcDEF1234567890abc" />');
+      expect(html).toContain('<meta name="msvalidate.01" content="BINGTOKEN1234567890" />');
+      expect(html.indexOf('google-site-verification')).toBeLessThan(html.indexOf('</head>'));
+    } finally {
+      await verified.close();
+    }
+    // Not configured → no empty tags.
+    const plain = await (await fetch(`${ctx.baseUrl}/`)).text();
+    expect(plain).not.toContain('google-site-verification');
+    expect(plain).not.toContain('msvalidate.01');
+  }, 120_000);
+
+  it('never injects a hostile verification token', async () => {
+    const bad = await startTestServer({ googleSiteVerification: '"><script>alert(1)</script>' });
+    try {
+      const html = await (await fetch(`${bad.baseUrl}/`)).text();
+      expect(html).not.toContain('<script>alert(1)</script>');
+      expect(html).not.toContain('google-site-verification');
+    } finally {
+      await bad.close();
+    }
+  }, 120_000);
+
+  it('exposes a rich WebApplication schema with the real origin', async () => {
+    const { body: html } = await rawGet(ctx.baseUrl, '/', { host: 'dl.ytvd.test' });
+    const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
+    const app = blocks.find((b) => b['@type'] === 'WebApplication');
+    expect(app.url).toContain('dl.ytvd.test');
+    expect(app.featureList.length).toBeGreaterThanOrEqual(5);
+    expect(app.operatingSystem).toBeTruthy();
+    expect(JSON.stringify(blocks)).not.toMatch(/aggregateRating/); // no fake review markup
+  }, 60_000);
+});
+
 describe('published URLs follow the deployment origin (SEO)', () => {
   it('rewrites canonical/hreflang/og/JSON-LD from the request host', async () => {
     const { status, body } = await rawGet(ctx.baseUrl, '/', { host: 'ytvd.test' });
