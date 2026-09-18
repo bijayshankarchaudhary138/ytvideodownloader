@@ -1,0 +1,60 @@
+# One-click deploy on Render's FREE plan.
+#
+#   1. Push this repo to GitHub (already done).
+#   2. On https://dashboard.render.com → New → Blueprint → pick this repo.
+#   3. Render reads this file and builds the Docker image automatically.
+#   4. Open the URL it gives you (https://<name>.onrender.com).
+#
+# Free-plan facts you should know:
+#   * the service sleeps after ~15 minutes of no traffic (first request then takes
+#     ~30-60 s to wake up);
+#   * there is no persistent disk, so finished files disappear on restart/deploy
+#     (fine for trying it out — just download again);
+#   * CPU/RAM are small (512 MB, shared), so 4K transcodes are slow; muxed
+#     downloads (mp4-720 / mp3) are fine;
+#   * Render's datacenter IP may be blocked by YouTube (BOT_CHECK). If you see
+#     that error, set DEMO_MODE=on so the site still runs end-to-end with sample
+#     media, or move to a VPS / your own PC + a tunnel (see docs/GO-LIVE-FREE.md).
+
+services:
+  - type: web
+    name: ytvideodownloader
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: singapore
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: DEMO_MODE
+        value: "off" # "on" = sample clips (works even when YouTube blocks the IP)
+      - key: TRUST_PROXY
+        value: "1" # Render terminates TLS in front of the app
+      - key: DATA_DIR
+        value: /app/data
+      - key: FILE_TTL_HOURS
+        value: "2" # small disk on the free plan
+      - key: CONCURRENCY
+        value: "1" # one job at a time on a shared CPU
+      - key: MAX_QUEUE_LENGTH
+        value: "10"
+      - key: FFMPEG_THREADS
+        value: "1"
+      - key: FFMPEG_PRESET
+        value: ultrafast
+      - key: CONCURRENT_FRAGMENTS
+        value: "2"
+      - key: RATE_LIMIT_MAX
+        value: "60"
+      - key: HEAVY_RATE_LIMIT_MAX
+        value: "10"
+      - key: LOG_LEVEL
+        value: info
+      # Set this to your real URL after the first deploy so canonical/OG/sitemap
+      # links point at your site (Render's dashboard → Environment).
+      - key: SITE_URL
+        sync: false

@@ -114,7 +114,21 @@ Production notes: run behind a reverse proxy with TLS, set `TRUST_PROXY=1`, and 
 
 ## Testing & going live
 
-Step-by-step guide: [`docs/DEPLOY.md`](docs/DEPLOY.md).
+Step-by-step guides:
+: **[`docs/GO-LIVE-FREE.md`](docs/GO-LIVE-FREE.md) — free hosting (no paid server needed)**, in simple Hindi + English.
+: [`docs/DEPLOY.md`](docs/DEPLOY.md) — full testing + production deployment reference.
+
+**Free live in 5 minutes** (your own PC + a free Cloudflare tunnel — also the most
+reliable option for real downloads, because a home IP is not blocked by YouTube):
+
+```bash
+npm install && npm run setup && npm run build
+DEMO_MODE=off npm start          # terminal 1 → http://localhost:8080
+npm run tunnel                   # terminal 2 → prints https://…trycloudflare.com
+```
+
+Or deploy the free blueprint to Render (repo ships [`render.yaml`](render.yaml)):
+Dashboard → New → Blueprint → pick this repo. No card required.
 
 ```bash
 npm test                     # full suite (17 files / 251 tests, ~40 s)

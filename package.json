@@ -12,6 +12,7 @@
     "build": "vite build --config web/vite.config.js",
     "start": "node server/src/index.js",
     "dev": "node scripts/dev.mjs",
+    "tunnel": "npx -y cloudflared tunnel --url http://localhost:8080",
     "test": "vitest run --config vitest.config.js",
     "test:watch": "vitest --config vitest.config.js",
     "test:unit": "vitest run --config vitest.config.js tests/unit tests/api",
