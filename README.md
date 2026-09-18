@@ -118,6 +118,7 @@ Step-by-step guides:
 : **[`docs/GO-LIVE-FREE.md`](docs/GO-LIVE-FREE.md) — free hosting (no paid server needed)**, in simple Hindi + English.
 : [`docs/DEPLOY.md`](docs/DEPLOY.md) — full testing + production deployment reference.
 : [`docs/SEO-RANKING.md`](docs/SEO-RANKING.md) — how to get indexed and rank for "yt video downloader" (honest plan: keywords, content, backlinks, Search Console).
+: [`docs/YOUTUBE-BLOCKS.md`](docs/YOUTUBE-BLOCKS.md) — why YouTube blocks datacenter IPs, how competitors dodge it, and the four levers this app gives you (home IP, cookies, proxy, extractor args).
 
 **Free live in 5 minutes** (your own PC + a free Cloudflare tunnel — also the most
 reliable option for real downloads, because a home IP is not blocked by YouTube):
@@ -259,11 +260,21 @@ Every knob works as an env var **and** as a config override (which is how the te
 | `FFMPEG_PRESET` | `veryfast` | x264/x265 speed/quality trade-off |
 | `CONCURRENT_FRAGMENTS` | `4` | yt-dlp parallel fragment downloads |
 | `COOKIES_FILE` | – | Netscape cookie file for age-restricted/member content |
-| `PROXY_URL` | – | HTTP/SOCKS proxy for yt-dlp |
+| `PROXY_URL` | – | HTTP/SOCKS proxy for yt-dlp (residential proxies defeat datacenter bot-checks) |
+| `YTDLP_EXTRACTOR_ARGS` | – | yt-dlp `--extractor-args`, e.g. `youtube:player_client=web_safari,tv` — the lever when YouTube changes its player |
 | `UPSTREAM_RATE_LIMIT` | – | yt-dlp `--limit-rate`, e.g. `5M` |
 | `TRUST_PROXY` | `true` | Honour `X-Forwarded-For` (set `0` if you are not behind a proxy) |
 | `SITE_URL` | inferred | Public origin stamped into canonical/hreflang/og/JSON-LD/`sitemap.xml`. Defaults to the request's own origin, so a fresh deployment is never wrong — set it explicitly when you have several domains |
 | `LOG_LEVEL` | `info` | `debug`…`silent` |
+
+**Keyword landing pages** (crawlable HTML + matching JSON-LD, generated from one
+catalogue in `server/src/seo/pages.js`): `/youtube-video-downloader`,
+`/youtube-mp3-downloader`, `/youtube-playlist-downloader`,
+`/youtube-shorts-downloader`, `/youtube-4k-downloader`, `/youtube-to-mp4`,
+`/youtube-subtitle-downloader`, `/youtube-thumbnail-downloader`,
+`/youtube-video-trimmer`, `/youtube-downloader-for-android`,
+`/youtube-downloader-for-pc`, `/free-youtube-downloader-no-ads`,
+`/youtube-video-downloader-hindi`. Run `npm run sitemap` after adding one.
 
 Presets: `best`, `mp4-4320`, `mp4-2160`, `mp4-1440`, `mp4-1080`, `mp4-720`, `mp4-480`, `mp4-360`, `mp4-240`, `mp3-320`, `mp3-192`, `mp3-128`, `m4a`, `opus`, `wav`, `flac`, `subtitle-srt`, `thumbnail-max`, `metadata-json`.
 

@@ -54,7 +54,21 @@ services:
         value: "10"
       - key: LOG_LEVEL
         value: info
-      # Set this to your real URL after the first deploy so canonical/OG/sitemap
-      # links point at your site (Render's dashboard → Environment).
+      # Fill these in from the Render dashboard after the first deploy:
+      #   SITE_URL                 → https://<your-service>.onrender.com (canonical/OG/sitemap)
+      #   GOOGLE_SITE_VERIFICATION → Search Console "HTML tag" token (ranking)
+      #   BING_SITE_VERIFICATION   → Bing Webmaster "msvalidate.01" token
+      #   PROXY_URL / COOKIES_FILE → only if YouTube bot-checks this datacenter IP
+      #   YTDLP_EXTRACTOR_ARGS     → e.g. youtube:player_client=web_safari,tv
       - key: SITE_URL
+        sync: false
+      - key: GOOGLE_SITE_VERIFICATION
+        sync: false
+      - key: BING_SITE_VERIFICATION
+        sync: false
+      - key: PROXY_URL
+        sync: false
+      - key: COOKIES_FILE
+        sync: false
+      - key: YTDLP_EXTRACTOR_ARGS
         sync: false

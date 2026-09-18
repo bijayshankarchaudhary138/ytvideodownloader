@@ -8,7 +8,8 @@ import { Header, Footer, Toasts, LiveRegion } from './components/Layout.jsx';
 import { Hero, UrlForm, FeatureGrid, HowToSection, FaqSection, HistoryPanel } from './components/Home.jsx';
 import { VideoCard, errorKey } from './components/Result.jsx';
 import { QueuePanel } from './components/Queue.jsx';
-import { ApiDocsPage, LegalPage, NotFoundPage, UseApi } from './components/Pages.jsx';
+import { ApiDocsPage, LandingPage, LegalPage, NotFoundPage, UseApi } from './components/Pages.jsx';
+import { SEO_PAGES } from '@server/seo/pages.js';
 
 const ROUTES = {
   '/': 'home',
@@ -17,6 +18,8 @@ const ROUTES = {
   '/api-docs': 'api',
   '/privacy': 'privacy',
   '/terms': 'terms',
+  // One landing route per keyword cluster, generated from the SEO catalogue.
+  ...Object.fromEntries(SEO_PAGES.map((page) => [page.slug, 'landing'])),
 };
 
 function useRouter() {
@@ -213,6 +216,7 @@ function AppShell() {
         {route === 'api' ? <ApiDocsPage /> : null}
         {route === 'privacy' ? <LegalPage kind="privacy" /> : null}
         {route === 'terms' ? <LegalPage kind="terms" /> : null}
+        {route === 'landing' ? <LandingPage slug={path} /> : null}
         {route === 'notfound' ? <NotFoundPage /> : null}
 
         <LiveRegion message={status} />

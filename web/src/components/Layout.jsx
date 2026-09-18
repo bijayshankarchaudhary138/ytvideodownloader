@@ -114,8 +114,26 @@ export function Footer() {
           <h3>{t('footer.links')}</h3>
           <ul>
             <li><Link to="/">{t('nav.home')}</Link></li>
+            <li><Link to="/youtube-video-downloader">YouTube Video Downloader</Link></li>
+            <li><Link to="/youtube-mp3-downloader">YouTube to MP3</Link></li>
+            <li><Link to="/youtube-playlist-downloader">Playlist Downloader</Link></li>
+            <li><Link to="/youtube-shorts-downloader">Shorts Downloader</Link></li>
+            <li><Link to="/youtube-4k-downloader">4K &amp; 8K Downloader</Link></li>
             <li><Link to="/how-to">{t('nav.howto')}</Link></li>
             <li><Link to="/faq">{t('nav.faq')}</Link></li>
+          </ul>
+        </nav>
+        <nav aria-label="Tools">
+          <h3>Tools</h3>
+          <ul>
+            <li><Link to="/youtube-to-mp4">YouTube to MP4</Link></li>
+            <li><Link to="/youtube-subtitle-downloader">Subtitles (.srt)</Link></li>
+            <li><Link to="/youtube-thumbnail-downloader">Thumbnails</Link></li>
+            <li><Link to="/youtube-video-trimmer">Video Trimmer</Link></li>
+            <li><Link to="/youtube-downloader-for-android">For Android</Link></li>
+            <li><Link to="/youtube-downloader-for-pc">For PC</Link></li>
+            <li><Link to="/free-youtube-downloader-no-ads">Ad-free downloader</Link></li>
+            <li><Link to="/youtube-video-downloader-hindi">हिन्दी में डाउनलोड करें</Link></li>
           </ul>
         </nav>
         <nav aria-label={t('footer.api')}>

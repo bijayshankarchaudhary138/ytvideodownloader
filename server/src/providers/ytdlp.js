@@ -16,6 +16,7 @@ export function createYtDlpProvider({ config, logger }) {
     return {
       ffmpegLocation,
       cookiesFile: config.cookiesFile,
+      extractorArgs: config.extractorArgs,
       rateLimit: config.rateLimitUpstream,
       concurrentFragments: config.concurrentFragments,
       proxyUrl: config.proxyUrl,
@@ -52,6 +53,9 @@ export function createYtDlpProvider({ config, logger }) {
       '--retries', '3',
       ...(parsed.type === 'playlist' ? ['--flat-playlist', '--yes-playlist'] : ['--no-playlist']),
       ...(config.cookiesFile ? ['--cookies', config.cookiesFile] : []),
+      ...(config.extractorArgs
+        ? String(config.extractorArgs).split(';').map((v) => v.trim()).filter(Boolean).flatMap((v) => ['--extractor-args', v])
+        : []),
       url,
     ];
     const { stdout } = await runYtDlp(args, {

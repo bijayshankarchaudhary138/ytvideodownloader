@@ -3,6 +3,77 @@ import { useI18n } from '../lib/i18n.jsx';
 import { Link } from './Layout.jsx';
 import { FaqSection, HowToSection } from './Home.jsx';
 import { openApi } from '../lib/api.js';
+import { seoPage, relatedPages } from '@server/seo/pages.js';
+
+/**
+ * A keyword landing page. The content comes from the shared SEO catalogue, so
+ * what a crawler reads in the server-rendered shell and what a visitor sees here
+ * are literally the same words (no drift, no cloaking).
+ */
+export function LandingPage({ slug }) {
+  const page = seoPage(slug);
+  const related = page ? relatedPages(page) : [];
+  if (!page) return <NotFoundPage />;
+
+  return (
+    <article className="page" lang={page.lang} aria-labelledby="landing-title">
+      <h1 id="landing-title">{page.h1}</h1>
+      <p className="lead">{page.intro}</p>
+      <p><Link to="/" className="primary-btn">{/* download CTA */}Open the downloader</Link></p>
+
+      {page.sections.map((section) => (
+        <section key={section.h2}>
+          <h2>{section.h2}</h2>
+          {(section.paras ?? []).map((paragraph) => <p key={paragraph.slice(0, 40)}>{paragraph}</p>)}
+          {section.bullets?.length ? (
+            <ul>
+              {section.bullets.map((bullet) => <li key={bullet.slice(0, 40)}>{bullet}</li>)}
+            </ul>
+          ) : null}
+          {section.table ? (
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>{section.table.head.map((cell) => <th key={cell} scope="col">{cell}</th>)}</tr>
+                </thead>
+                <tbody>
+                  {section.table.rows.map((row) => (
+                    <tr key={row.join('|')}>
+                      {row.map((cell, index) => (index === 0
+                        ? <th key={cell} scope="row">{cell}</th>
+                        : <td key={`${cell}-${index}`}>{cell}</td>))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : null}
+        </section>
+      ))}
+
+      <section aria-labelledby="landing-faq">
+        <h2 id="landing-faq">Frequently asked questions</h2>
+        {page.faqs.map((faq) => (
+          <details key={faq.q}>
+            <summary>{faq.q}</summary>
+            <p>{faq.a}</p>
+          </details>
+        ))}
+      </section>
+
+      {related.length ? (
+        <nav aria-label="Related pages">
+          <h2>Related</h2>
+          <ul>
+            {related.map((entry) => (
+              <li key={entry.slug}><Link to={entry.slug}>{entry.h1}</Link></li>
+            ))}
+          </ul>
+        </nav>
+      ) : null}
+    </article>
+  );
+}
 
 export function UseApi() {
   return (

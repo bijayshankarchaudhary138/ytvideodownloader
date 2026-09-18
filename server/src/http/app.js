@@ -16,6 +16,8 @@ import { createDownloader } from '../services/downloader.js';
 import { createBatchService } from '../services/batch.js';
 import { createSseHub } from './sse.js';
 import { buildOpenApi } from './openapi.js';
+import { rewriteHtml, sitemapXml, robotsTxt } from '../seo/render.js';
+import { seoPage, normaliseSlug, SEO_PAGES } from '../seo/pages.js';
 import { PRESETS } from '../core/formats.js';
 import { parseVideoUrl, extractUrls } from '../core/url.js';
 import { parseRange, sanitizeFilename } from '../core/util.js';
@@ -517,7 +519,7 @@ export function createApp({ config }) {
     return tags.join('\n    ');
   }
 
-  function readRewritten(filePath, req) {
+  function readTemplate(filePath) {
     if (!fs.existsSync(filePath)) return null;
     const { mtimeMs } = fs.statSync(filePath);
     let entry = shellCache.get(filePath);
@@ -525,17 +527,27 @@ export function createApp({ config }) {
       entry = { mtimeMs, text: fs.readFileSync(filePath, 'utf8') };
       shellCache.set(filePath, entry);
     }
-    let text = entry.text.split(SITE_PLACEHOLDER).join(resolveSiteUrl(req));
-    if (filePath.endsWith('.html')) {
-      const tags = verificationTags();
-      if (tags) text = text.replace('</head>', `  ${tags}\n</head>`);
+    return entry.text;
+  }
+
+  /**
+   * Rewrites the SPA shell for the requested route: origin, per-route title /
+   * description / canonical / hreflang / OG and the crawlable content block plus
+   * its JSON-LD. Crawlers that do not run JavaScript see a complete page.
+   */
+  function readRewritten(filePath, req, { slug = '/' } = {}) {
+    const template = readTemplate(filePath);
+    if (template === null) return null;
+    const siteUrl = resolveSiteUrl(req);
+    if (!filePath.endsWith('.html')) {
+      return template.split(SITE_PLACEHOLDER).join(siteUrl);
     }
-    return text;
+    return rewriteHtml(template, { page: seoPage(slug), siteUrl, verificationTags: verificationTags() });
   }
 
   /** Serve an HTML/text file with the deployment origin substituted in. */
-  function serveSiteFile(req, res, filePath, { contentType, cacheControl } = {}) {
-    const text = readRewritten(filePath, req);
+  function serveSiteFile(req, res, filePath, { contentType, cacheControl, slug = '/' } = {}) {
+    const text = readRewritten(filePath, req, { slug });
     if (text === null) return false;
     if (contentType) res.type(contentType);
     if (cacheControl) res.setHeader('Cache-Control', cacheControl);
@@ -544,18 +556,27 @@ export function createApp({ config }) {
     return true;
   }
 
-  for (const [route, name, contentType] of [['/robots.txt', 'robots.txt', 'text/plain; charset=utf-8'], ['/sitemap.xml', 'sitemap.xml', 'application/xml; charset=utf-8']]) {
-    app.get(route, (req, res, next) => {
-      const filePath = path.join(config.webPublicDir, name);
-      if (serveSiteFile(req, res, filePath, { contentType, cacheControl: config.isProd ? 'public, max-age=3600' : 'no-cache' })) return;
-      next();
-    });
-  }
+  // robots.txt + sitemap.xml are generated per request so a self-hosted copy
+  // always advertises its own origin (no placeholder domains in the wild).
+  const textCache = config.isProd ? 'public, max-age=3600' : 'no-cache';
+  app.get('/robots.txt', (req, res) => {
+    res.type('text/plain; charset=utf-8').setHeader('Cache-Control', textCache);
+    res.send(robotsTxt({ siteUrl: resolveSiteUrl(req) }));
+  });
 
-  for (const route of ['/', '/index.html']) {
+  app.get('/sitemap.xml', (req, res) => {
+    res.type('application/xml; charset=utf-8').setHeader('Cache-Control', textCache);
+    res.send(sitemapXml({ siteUrl: resolveSiteUrl(req) }));
+  });
+
+  // The home page plus every SEO landing page: same SPA shell, different
+  // crawlable content, titles and structured data.
+  const shellRoutes = ['/', '/index.html', ...SEO_PAGES.map((page) => page.slug)];
+  for (const route of shellRoutes) {
     app.get(route, (req, res, next) => {
       const filePath = path.join(config.webDistDir, 'index.html');
-      if (serveSiteFile(req, res, filePath, { contentType: 'text/html; charset=utf-8', cacheControl: 'no-cache' })) return;
+      const slug = route === '/index.html' ? '/' : normaliseSlug(route);
+      if (serveSiteFile(req, res, filePath, { contentType: 'text/html; charset=utf-8', cacheControl: 'no-cache', slug })) return;
       next();
     });
   }
@@ -595,7 +616,7 @@ export function createApp({ config }) {
       return;
     }
     const indexPath = path.join(config.webDistDir, 'index.html');
-    if (serveSiteFile(req, res, indexPath, { contentType: 'text/html; charset=utf-8', cacheControl: 'no-cache' })) return;
+    if (serveSiteFile(req, res, indexPath, { contentType: 'text/html; charset=utf-8', cacheControl: 'no-cache', slug: req.path })) return;
     res.status(200).type('html').send(fallbackPage(config));
   });
 

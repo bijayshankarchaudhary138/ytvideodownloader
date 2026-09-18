@@ -9,6 +9,8 @@
   },
   "scripts": {
     "setup": "node scripts/setup-binaries.mjs",
+    "icons": "node scripts/make-icons.mjs",
+    "sitemap": "node scripts/make-sitemap.mjs",
     "build": "vite build --config web/vite.config.js",
     "start": "node server/src/index.js",
     "dev": "node scripts/dev.mjs",
@@ -18,8 +20,7 @@
     "test:unit": "vitest run --config vitest.config.js tests/unit tests/api",
     "test:api": "vitest run --config vitest.config.js tests/api",
     "test:e2e": "vitest run --config vitest.config.js tests/e2e tests/web",
-    "verify": "node scripts/verify.mjs",
-    "icons": "node scripts/make-icons.mjs"
+    "verify": "node scripts/verify.mjs"
   },
   "dependencies": {
     "archiver": "^7.0.1",

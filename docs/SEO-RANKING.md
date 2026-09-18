@@ -91,20 +91,44 @@ Rule: **ek page = ek intent**. `/` = download karna, `/how-to` = step-by-step,
 `/faq` = doubts, `/api-docs` = developers. Keyword stuffing na karo — Google
 penalise karta hai; natural Hindi + English dono likho.
 
-### B. Content — har hafte 1 page (yehi asli ranking karta hai)
+### B. Content — shipped pages aur aage ka queue
 
-Naye pages banao (SPA routes already hain, content badha do):
+**Ye pages abhi code me hain** (`server/src/seo/pages.js` me ek hi jagah content
+hai; server crawler ke liye HTML banata hai, React visitor ke liye wahi content):
 
-1. `/how-to` — "YouTube video download kaise kare (Android, iPhone, PC)" — screenshots ke saath
-2. `/faq` — 20+ sawaal (legal, quality, speed, playlist, subtitles, error messages)
-3. `/youtube-shorts-downloader` — Shorts ke liye dedicated page
-4. `/youtube-playlist-downloader` — playlist + ZIP
-5. `/youtube-mp3-downloader` — audio formats, 320 kbps
-6. `/youtube-to-mp4-1080p` — quality guide
-7. Blog: "Why most YouTube downloaders give you silent 1080p videos" (technical story — backlinks aise milte hain)
+| Page | Target keyword |
+| --- | --- |
+| `/youtube-video-downloader` | youtube video downloader, yt video downloader |
+| `/youtube-mp3-downloader` | youtube mp3 downloader, youtube to mp3 320kbps |
+| `/youtube-playlist-downloader` | youtube playlist downloader, playlist to zip |
+| `/youtube-shorts-downloader` | youtube shorts downloader |
+| `/youtube-4k-downloader` | youtube 4k downloader, 8k download |
+| `/youtube-to-mp4` | youtube to mp4 |
+| `/youtube-subtitle-downloader` | youtube subtitle downloader, srt |
+| `/youtube-thumbnail-downloader` | youtube thumbnail downloader, maxresdefault |
+| `/youtube-video-trimmer` | youtube trimmer, clip downloader |
+| `/youtube-downloader-for-android` | youtube downloader for android |
+| `/youtube-downloader-for-pc` | youtube downloader for pc / windows / mac |
+| `/free-youtube-downloader-no-ads` | youtube downloader no ads |
+| `/youtube-video-downloader-hindi` | youtube video download kaise kare (Hindi) |
 
-Har page: **unique title + description**, ek H1, chhote paragraphs, ek table ya
-list, internal links, aur page ke end me FAQ (schema ke saath).
+Har page me: unique title + description, ek H1, 4+ FAQ (FAQPage schema ke saath,
+text bhi page par visible), HowTo + Breadcrumb schema, related pages ke internal
+links, aur sitemap entry. Test `tests/api/seo.test.js` in sab ko verify karta hai
+(duplicate title, dead link, schema/text mismatch, placeholder domain — sab fail
+hote hain).
+
+**Agla queue (jab time mile):**
+
+1. `/youtube-downloader-for-iphone` — iOS cluster
+2. `/youtube-music-downloader` — music.youtube.com cluster
+3. `/youtube-to-wav-flac` — lossless audio cluster
+4. `/blog/...` — 3 technical posts (ffmpeg mux kyun chahiye, SSE progress kaise
+   banaya, self-hosting guide) — inhe backlink milte hain, ranking inhi se aati hai
+5. Har naye page ke baad: `npm run sitemap` + Google Search Console me "Request indexing"
+
+Rule: **ek page = ek intent**. Keyword stuffing na karo — Google penalise karta
+hai; natural Hindi + English dono likho.
 
 ### C. Backlinks (rank ke liye zaroori)
 

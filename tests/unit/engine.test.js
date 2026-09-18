@@ -171,3 +171,37 @@ describe('engine availability', () => {
     expect(v).toMatch(/^\d{4}\.\d{1,2}\.\d{1,2}/);
   });
 });
+
+describe('extractor args (YouTube block workarounds)', () => {
+  it('omits --extractor-args by default', () => {
+    const args = buildYtDlpArgs({ url: 'https://youtu.be/x', outputTemplate: '%(id)s.%(ext)s' });
+    expect(args).not.toContain('--extractor-args');
+  });
+
+  it('passes one or several extractor args, in order', () => {
+    const args = buildYtDlpArgs({
+      url: 'https://youtu.be/x',
+      outputTemplate: '%(id)s.%(ext)s',
+      extractorArgs: 'youtube:player_client=web_safari,tv ; youtube:po_token=mint',
+    });
+    const pairs = args.reduce((acc, value, index) => (value === '--extractor-args' ? [...acc, args[index + 1]] : acc), []);
+    expect(pairs).toEqual(['youtube:player_client=web_safari,tv', 'youtube:po_token=mint']);
+  });
+
+  it('ignores empty/blank values', () => {
+    const args = buildYtDlpArgs({ url: 'https://youtu.be/x', extractorArgs: ' ; ' });
+    expect(args).not.toContain('--extractor-args');
+  });
+
+  it('still works together with cookies and a proxy', () => {
+    const args = buildYtDlpArgs({
+      url: 'https://youtu.be/x',
+      cookiesFile: '/tmp/cookies.txt',
+      proxyUrl: 'http://proxy:3128',
+      extractorArgs: 'youtube:player_client=android',
+    });
+    expect(args).toContain('--cookies');
+    expect(args).toContain('--proxy');
+    expect(args).toContain('--extractor-args');
+  });
+});

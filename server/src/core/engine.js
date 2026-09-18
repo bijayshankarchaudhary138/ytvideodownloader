@@ -137,6 +137,7 @@ export function buildYtDlpArgs({
   playlist = false,
   playlistItems = null,
   cookiesFile = null,
+  extractorArgs = null,
   rateLimit = null,
   concurrentFragments = null,
   proxyUrl = null,
@@ -195,6 +196,13 @@ export function buildYtDlpArgs({
     args.push('--download-sections', `*${formatSectionTime(trim.start)}-${formatSectionTime(trim.end)}`, '--force-keyframes-at-cuts');
   }
   if (cookiesFile) args.push('--cookies', cookiesFile);
+  // Workaround lever for YouTube changes/blocks: "youtube:player_client=web_safari,tv"
+  // (multiple values separated by ';'). Never passed from user input.
+  if (extractorArgs) {
+    for (const value of String(extractorArgs).split(';').map((v) => v.trim()).filter(Boolean).slice(0, 4)) {
+      args.push('--extractor-args', value);
+    }
+  }
   if (rateLimit) args.push('--limit-rate', String(rateLimit));
   if (concurrentFragments) args.push('--concurrent-fragments', String(concurrentFragments));
   if (proxyUrl) args.push('--proxy', proxyUrl);

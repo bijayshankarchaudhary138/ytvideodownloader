@@ -92,6 +92,9 @@ export function loadConfig(overrides = {}) {
     ffmpegPreset: overrides.ffmpegPreset ?? env.FFMPEG_PRESET ?? 'veryfast',
     ffmpegThreads: num(overrides.ffmpegThreads ?? env.FFMPEG_THREADS, 0), // 0 = auto
     cookiesFile: overrides.cookiesFile ?? env.COOKIES_FILE ?? null,
+    // yt-dlp --extractor-args, e.g. "youtube:player_client=web_safari,tv".
+    // Useful when YouTube starts challenging a server IP (BOT_CHECK).
+    extractorArgs: overrides.extractorArgs ?? env.YTDLP_EXTRACTOR_ARGS ?? null,
     proxyUrl: overrides.proxyUrl ?? env.PROXY_URL ?? null,
     rateLimitUpstream: overrides.rateLimitUpstream ?? env.UPSTREAM_RATE_LIMIT ?? null,
     concurrentFragments: num(overrides.concurrentFragments ?? env.CONCURRENT_FRAGMENTS, 4),
