@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { I18nProvider, useI18n, useT } from './lib/i18n.jsx';
 import {
-  getInfo, getMeta, createJob, cancelJob, retryJob, deleteJob, subscribeEvents,
+  getInfo, getMeta, getHealth, createJob, cancelJob, retryJob, deleteJob, subscribeEvents,
 } from './lib/api.js';
-import { addHistory, setState, toast, upsertJob, useAppStore } from './lib/store.js';
+import { addHistory, getState, setState, toast, upsertJob, useAppStore } from './lib/store.js';
 import { Header, Footer, Toasts, LiveRegion } from './components/Layout.jsx';
 import { Hero, UrlForm, FeatureGrid, HowToSection, FaqSection, HistoryPanel } from './components/Home.jsx';
 import { VideoCard, errorKey } from './components/Result.jsx';
@@ -68,6 +68,7 @@ function AppShell() {
   const subtitle = useAppStore((s) => s.subtitle);
   const historyOpen = useAppStore((s) => s.historyOpen);
   const infoUrl = useAppStore((s) => s.infoUrl);
+  const health = useAppStore((s) => s.health);
 
   // The crawlable shell must disappear as soon as React renders.
   useLayoutEffect(() => {
@@ -76,7 +77,13 @@ function AppShell() {
 
   useEffect(() => {
     getMeta().then((data) => setState({ meta: data })).catch(() => { /* UI still works without meta */ });
+    getHealth().then((data) => setState({ health: data })).catch(() => { /* banner is optional */ });
   }, []);
+
+  const hasActiveJobs = useCallback(
+    () => (getState().jobs ?? []).some((job) => ['queued', 'downloading', 'processing'].includes(job.status)),
+    [],
+  );
 
   useEffect(() => subscribeEvents({
     onUpdate: (job) => upsertJob(job),
@@ -95,7 +102,7 @@ function AppShell() {
         });
       }
     },
-  }), [infoUrl, t]);
+  }, { hasActiveJobs }), [infoUrl, t, hasActiveJobs]);
 
   useKeyboardShortcuts({ inputRef, setValue: setUrl });
 
@@ -169,6 +176,12 @@ function AppShell() {
                 setValue={setUrl}
               />
             </Hero>
+
+            {health?.mode === 'demo' ? (
+              <p className="notice demo-notice" role="status">
+                <strong>{t('demo.title')}</strong> {t('demo.body')}
+              </p>
+            ) : null}
 
             {error ? <p className="error banner-error" role="alert">{error}</p> : null}
 

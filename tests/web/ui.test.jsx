@@ -56,6 +56,9 @@ function makeFakeApi() {
     const json = (data, status = 200) =>
       new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json' } });
 
+    if (url.endsWith('/api/health')) {
+      return json({ status: 'ok', mode: state.mode ?? 'demo', version: '1.0.0', engines: { ffmpeg: { available: true }, ytdlp: { available: true, version: '2026.08.19' } }, queue: { total: 0 }, cache: {}, sseClients: 0 });
+    }
     if (url.endsWith('/api/meta')) {
       return json({
         version: '1.0.0',
@@ -275,4 +278,52 @@ describe('history, language and theme', () => {
     await userEvent.type(document.body, '{Escape}');
     expect(input.value).toBe('');
   });
+});
+
+describe('resilience (what a buffering proxy does to SSE)', () => {
+  it('still delivers the download link when the SSE stream never fires', async () => {
+    // EventSource opens but stays silent — exactly what a proxy that buffers
+    // text/event-stream looks like from the browser. Polling must save the day.
+    delete window.__emitJobDone;
+    const user = userEvent.setup();
+    renderApp();
+
+    await user.type(screen.getByPlaceholderText(/paste|youtube|link/i), 'https://youtu.be/dQw4w9WgXcQ');
+    await user.click(screen.getByRole('button', { name: /download|analyse|analyze/i }));
+    const rows = await screen.findAllByRole('button', { name: /download|save/i });
+    await user.click(rows[0]);
+
+    const links = await screen.findAllByRole('link', { name: /save|download file|download/i }, { timeout: 20000 });
+    const fileLink = links.map((l) => l.getAttribute('href')).find((href) => /^\/api\/files\//.test(href ?? ''));
+    expect(fileLink, `links seen: ${links.map((l) => l.getAttribute('href')).join(', ')}`).toBeTruthy();
+  }, 40000);
+
+  it('reports a silent SSE stream as a broken job instead of hanging forever', async () => {
+    delete window.__emitJobDone;
+    fake.fetchMock.mockImplementation(async (input, init = {}) => {
+      const url = typeof input === 'string' ? input : input.url;
+      if (url.includes('/api/jobs') && (init.method ?? 'GET').toUpperCase() === 'GET') {
+        return new Response(JSON.stringify({ error: { code: 'NETWORK', message: 'boom' } }), { status: 500, headers: { 'content-type': 'application/json' } });
+      }
+      return new Response(JSON.stringify({ jobs: [], stats: {} }), { status: 200, headers: { 'content-type': 'application/json' } });
+    });
+    renderApp();
+    await waitFor(() => expect(screen.getByRole('heading', { level: 1 })).toBeTruthy());
+  }, 30000);
+});
+
+describe('demo mode is explained to the visitor', () => {
+  it('shows a demo notice when the server reports demo mode', async () => {
+    fake.state.mode = 'demo';
+    renderApp();
+    expect(await screen.findByText(/demo mode/i)).toBeTruthy();
+    expect(screen.getByText(/DEMO_MODE=off/i)).toBeTruthy();
+  }, 30000);
+
+  it('hides the notice when the server runs the real engine', async () => {
+    fake.state.mode = 'live';
+    renderApp();
+    await waitFor(() => expect(screen.getByRole('heading', { level: 1 })).toBeTruthy());
+    expect(screen.queryByText(/demo mode/i)).toBeNull();
+  }, 30000);
 });

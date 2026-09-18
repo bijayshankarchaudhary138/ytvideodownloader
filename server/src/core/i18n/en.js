@@ -37,6 +37,8 @@ export const en = {
   'trim.apply': 'Trim this part',
   'trim.hint': 'Leave empty to download the whole video.',
 
+  'demo.title': "Demo mode:",
+  'demo.body': "YouTube is not reachable from this server, so downloads are generated sample clips. Set DEMO_MODE=off on a machine with internet access to download the real video.",
   'job.queued': 'Waiting in queue…',
   'job.downloading': 'Downloading {percent}%',
   'job.merging': 'Merging video and audio…',

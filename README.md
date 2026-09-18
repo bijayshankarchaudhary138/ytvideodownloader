@@ -60,7 +60,7 @@ Full 11-competitor teardown with sources: [`docs/COMPETITOR-ANALYSIS.md`](docs/C
 - Cancel a running job, retry a failed one, watch a queue with concurrency limits
 
 **Experience**
-- Live progress: percent, speed, ETA, downloaded/total bytes, stage
+- Live progress: percent, speed, ETA, downloaded/total bytes, stage — pushed over SSE, with an automatic polling fallback so a proxy that buffers `text/event-stream` can never leave the UI stuck on "queued"
 - Job history in `localStorage` (nothing leaves your device)
 - Playlist browser with per-entry status → batch ZIP
 - Keyboard-first: `/` focuses the URL box, `Esc` clears it, visible focus rings, ARIA live region for status
@@ -302,6 +302,7 @@ docs/COMPETITOR-ANALYSIS.md   the competitive research this project was built ag
 | Downloads fail with `GEO_BLOCKED` | The video is region-locked where the server runs — use a proxy/VPN in the right region. |
 | Audio conversion fails | Check `vendor/bin/ffprobe` exists (`npm run setup` installs a shim); set `FFPROBE_PATH` to use a system ffprobe. |
 | Playback has no sound | That means a video-only stream was fetched — should be impossible here (muxing is asserted in the test-suite); force reconstruction by choosing a `mp4-*` preset instead of `best`. |
+| Progress stuck on "queued" / no download link appears | Fixed in the app itself (SSE + polling fallback), but check the browser console and `/api/jobs` — if the queue is empty, the POST never reached the server (`TRUST_PROXY=0` if you are behind a proxy that mangles headers). |
 | Everything looks broken locally | `npm run verify` tells you exactly which layer is down. |
 
 ---

@@ -59,50 +59,93 @@ export const getBatch = (id) => request(`/api/batch/${id}`);
 export const openApi = () => request('/api/openapi.json');
 
 /**
- * Live updates. Uses Server-Sent Events when the browser supports it and falls
- * back to polling otherwise, so progress always works.
+ * Live updates with a belt-and-braces safety net.
+ *
+ * SSE gives instant progress, but a proxy that buffers or breaks
+ * `text/event-stream` leaves the connection open with no events forever — the
+ * classic "I clicked Download and nothing happens" bug. So we ALSO poll: fast
+ * while a job is active (or while SSE looks dead), slowly otherwise. The two
+ * sources are merged through a status map so callers never see duplicates.
  */
-export function subscribeEvents(handlers = {}) {
+export function subscribeEvents(handlers = {}, options = {}) {
   const { onUpdate, onProgress, onDone, onError } = handlers;
-  const EventSourceCtor = typeof window !== 'undefined' ? (window.EventSource ?? window.EventSourcePolyfill) : undefined;
+  const {
+    hasActiveJobs = () => true,
+    activePollMs = 1500,
+    idlePollMs = 8000,
+    backupPollMs = 15_000,
+    sseStaleMs = 12_000,
+  } = options;
 
-  const parse = (event) => {
-    try { return JSON.parse(event.data); } catch { return null; }
+  const seen = new Map(); // job id → last status we reported
+
+  const report = (job) => {
+    if (!job?.id || !job.status) return;
+    const previous = seen.get(job.id);
+    seen.set(job.id, job.status);
+    const terminal = ['ready', 'failed', 'canceled', 'expired'].includes(job.status);
+    if (terminal && previous !== job.status) onDone?.(job);
+    else onUpdate?.(job);
   };
-
-  if (EventSourceCtor) {
-    let source;
-    try {
-      source = new EventSourceCtor(apiUrl('/api/events'));
-    } catch {
-      source = null;
-    }
-    if (source) {
-      source.addEventListener('job:update', (e) => { const d = parse(e); if (d?.job) onUpdate?.(d.job); });
-      source.addEventListener('job:progress', (e) => { const d = parse(e); if (d) onProgress?.(d); });
-      source.addEventListener('job:done', (e) => { const d = parse(e); if (d?.job) onDone?.(d.job); });
-      source.addEventListener('error', (err) => onError?.(err));
-      return () => { try { source.close(); } catch { /* ignore */ } };
-    }
-  }
 
   let stopped = false;
   let timer = null;
+  let source = null;
+  let lastSseAt = 0;
+  let sseOpened = false;
+
+  const sseFresh = () => sseOpened && Date.now() - lastSseAt < sseStaleMs;
+
+  const nextDelay = () => {
+    if (typeof document !== 'undefined' && document.hidden) return backupPollMs;
+    const active = hasActiveJobs();
+    if (!EventSourceCtor) return active ? activePollMs : idlePollMs; // no SSE at all
+    if (!sseFresh()) return active ? activePollMs : idlePollMs;      // SSE silent/dead
+    return active ? idlePollMs : backupPollMs;                       // SSE healthy → thin safety net
+  };
+
   const poll = async () => {
     if (stopped) return;
     try {
       const { jobs } = await listJobs({ limit: 50 });
-      for (const job of jobs ?? []) {
-        if (job.status === 'ready' || job.status === 'failed' || job.status === 'canceled' || job.status === 'expired') onDone?.(job);
-        else onUpdate?.(job);
-      }
+      for (const job of jobs ?? []) report(job);
     } catch (err) {
       onError?.(err);
     }
-    if (!stopped) timer = setTimeout(poll, 2000);
+    if (!stopped) timer = setTimeout(poll, nextDelay());
   };
+
+  const EventSourceCtor = typeof window !== 'undefined' ? (window.EventSource ?? window.EventSourcePolyfill) : undefined;
+  if (EventSourceCtor) {
+    try {
+      source = new EventSourceCtor(apiUrl('/api/events'));
+      const touch = () => { lastSseAt = Date.now(); sseOpened = true; };
+      const parse = (event) => { try { return JSON.parse(event.data); } catch { return null; } };
+      source.addEventListener('open', touch);
+      source.addEventListener('hello', touch);
+      source.addEventListener('ping', touch);
+      source.addEventListener('job:update', (e) => { touch(); const d = parse(e); if (d?.job) report(d.job); });
+      source.addEventListener('job:progress', (e) => {
+        touch();
+        const d = parse(e);
+        if (d?.job) report(d.job);
+        else if (d?.id) onProgress?.(d);
+      });
+      source.addEventListener('job:done', (e) => { touch(); const d = parse(e); if (d?.job) report(d.job); });
+      source.addEventListener('error', () => { sseOpened = false; });
+    } catch {
+      source = null;
+    }
+  }
+
+  // Poll immediately once, then keep the safety net running for the whole session.
   poll();
-  return () => { stopped = true; if (timer) clearTimeout(timer); };
+
+  return () => {
+    stopped = true;
+    if (timer) clearTimeout(timer);
+    try { source?.close?.(); } catch { /* ignore */ }
+  };
 }
 
 export function downloadUrl(job) {

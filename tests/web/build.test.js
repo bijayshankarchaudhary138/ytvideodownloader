@@ -2,15 +2,18 @@
  * Web build tests: SEO, PWA, i18n, performance budget and "no hardcoded
  * localhost" guarantees for the front-end bundle.
  */
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { execFile } from 'node:child_process';
 import fs from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
 const ROOT = process.cwd();
-const DIST = path.join(ROOT, 'web', 'dist');
+// Build into a private directory: `npm test` must never overwrite the shipped
+// bundle (and must never race another test doing its own build).
+let DIST;
 
 let html = '';
 let assets = { js: [], css: [], other: [] };
@@ -25,10 +28,16 @@ async function walk(dir, acc = []) {
 }
 
 beforeAll(async () => {
-  await execFileAsync(process.execPath, [path.join(ROOT, 'node_modules/vite/bin/vite.js'), 'build', '--config', 'web/vite.config.js'], {
-    cwd: ROOT,
-    maxBuffer: 20 * 1024 * 1024,
-  });
+  DIST = await fs.mkdtemp(path.join(os.tmpdir(), 'ytvd-build-'));
+  await execFileAsync(
+    process.execPath,
+    [path.join(ROOT, 'node_modules/vite/bin/vite.js'), 'build', '--config', 'web/vite.config.js', '--outDir', DIST, '--emptyOutDir'],
+    {
+      cwd: ROOT,
+      maxBuffer: 20 * 1024 * 1024,
+      env: { ...process.env, NODE_ENV: 'production' },
+    },
+  );
   html = await fs.readFile(path.join(DIST, 'index.html'), 'utf8');
   const files = await walk(DIST);
   assets = {
@@ -37,6 +46,10 @@ beforeAll(async () => {
     other: files.filter((f) => !f.endsWith('.js') && !f.endsWith('.css')),
   };
 }, 300_000);
+
+afterAll(async () => {
+  if (DIST) await fs.rm(DIST, { recursive: true, force: true });
+});
 
 describe('build output', () => {
   it('produces index.html + hashed assets', () => {
