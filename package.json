@@ -1,0 +1,41 @@
+{
+  "name": "sarkari-result-website",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "next lint",
+    "scraper": "node scraper/cron.cjs",
+    "seed": "node scripts/seed.cjs"
+  },
+  "dependencies": {
+    "next": "14.2.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "cheerio": "^1.0.0-rc.12",
+    "node-cron": "^3.0.3",
+    "axios": "^1.7.2",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "cookies-next": "^4.2.1",
+    "rss": "^1.2.2",
+    "date-fns": "^3.6.0",
+    "slugify": "^1.6.6",
+    "react-hot-toast": "^2.4.1",
+    "lowdb": "^7.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.39",
+    "tailwindcss": "^3.4.6",
+    "typescript": "^5.5.3",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/rss": "^0.0.32"
+  }
+}

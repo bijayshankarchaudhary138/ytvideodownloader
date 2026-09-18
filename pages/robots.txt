@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://sarkariresult.example.com/sitemap.xml
