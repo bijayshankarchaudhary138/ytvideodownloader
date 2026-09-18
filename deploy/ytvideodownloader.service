@@ -1,0 +1,64 @@
+# systemd unit for ytvideodownloader (Ubuntu/Debian).
+#
+#   sudo cp deploy/ytvideodownloader.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now ytvideodownloader
+#   systemctl status ytvideodownloader --no-pager
+#   journalctl -u ytvideodownloader -f
+#
+# Adjust WorkingDirectory / User / SITE_URL to match your server.
+
+[Unit]
+Description=ytvideodownloader — ad-free YouTube downloader (API + web app)
+Documentation=https://github.com/bijayshankarchaudhary138/ytvideodownloader
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ytvd
+Group=ytvd
+WorkingDirectory=/opt/ytvideodownloader
+
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+Environment=PORT=8080
+Environment=DEMO_MODE=off
+Environment=TRUST_PROXY=1
+Environment=DATA_DIR=/opt/ytvideodownloader/data
+# Public origin used in canonical/hreflang/OG/sitemap output:
+Environment=SITE_URL=https://dl.example.com
+
+# Tuning (see docs/DEPLOY.md §7)
+Environment=FILE_TTL_HOURS=6
+Environment=CONCURRENCY=2
+Environment=MAX_QUEUE_LENGTH=50
+Environment=RATE_LIMIT_MAX=60
+Environment=HEAVY_RATE_LIMIT_MAX=15
+Environment=LOG_LEVEL=info
+
+# Optional for hard-to-reach networks:
+# Environment=PROXY_URL=http://user:pass@proxy.example:3128
+# Environment=COOKIES_FILE=/opt/ytvideodownloader/data/cookies.txt
+
+ExecStart=/usr/bin/node server/src/index.js
+Restart=always
+RestartSec=3
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+# --- hardening ---------------------------------------------------------------
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+# The download cache must stay writable:
+ReadWritePaths=/opt/ytvideodownloader/data
+# yt-dlp/ffmpeg live here and only need to be readable:
+ReadOnlyPaths=/opt/ytvideodownloader/vendor
+
+[Install]
+WantedBy=multi-user.target

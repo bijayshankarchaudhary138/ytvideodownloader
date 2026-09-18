@@ -13,6 +13,7 @@ Cloud downloaders (y2mate, SaveFrom, YT1s, SSYouTube…) make you click through 
 - [Why this beats the competition](#why-this-beats-the-competition)
 - [Feature tour](#feature-tour)
 - [Quick start](#quick-start)
+- [Testing & going live](#testing--going-live)
 - [Docker / self-hosting](#docker--self-hosting)
 - [REST API](#rest-api)
 - [Configuration](#configuration)
@@ -111,6 +112,35 @@ Production notes: run behind a reverse proxy with TLS, set `TRUST_PROXY=1`, and 
 
 ---
 
+## Testing & going live
+
+Step-by-step guide: [`docs/DEPLOY.md`](docs/DEPLOY.md).
+
+```bash
+npm test                     # full suite (17 files / 251 tests, ~40 s)
+npm run verify               # boots a real server, runs 17 end-to-end checks
+npm run verify -- --demo     # same, offline with sample media
+```
+
+Preview the product locally: `npm run dev` → **http://localhost:5173** (API on
+`:8080`). Production-style single process: `npm run build && npm start` →
+**http://localhost:8080**.
+
+To put it on the internet, pick one:
+
+- **Docker (easiest)** — `docker compose up -d --build`, then reverse-proxy it.
+- **VPS + nginx + systemd** — copy [`deploy/nginx.conf`](deploy/nginx.conf) and
+  [`deploy/ytvideodownloader.service`](deploy/ytvideodownloader.service) and
+  follow §5 of the guide.
+- **PaaS (Render / Railway / Fly)** — Dockerfile is ready; add a persistent disk
+  at `/app/data`.
+
+> Always keep `proxy_buffering off;` for `/api/events` in your reverse proxy —
+> otherwise live progress is buffered away. The app also polls as a fallback, so
+> the UI can never freeze on "queued".
+
+---
+
 ## Docker / self-hosting
 
 ```bash
@@ -125,6 +155,10 @@ docker run -d -p 8080:8080 -v ytvd-data:/app/data --name ytvd ytvideodownloader
 ```
 
 The image is a `node:20-slim` with python3, the vendored engines in `vendor/`, and the built frontend. `/app/data` holds cached metadata and finished files — mount it as a volume so restarts don't lose the queue's output.
+
+Put it behind TLS with the sample reverse-proxy config in
+[`deploy/nginx.conf`](deploy/nginx.conf) (SSE-safe), and keep the engine fresh with
+`docker compose exec ytvideodownloader sh -c 'SKIP_FFMPEG=1 npm run setup'`.
 
 ---
 
